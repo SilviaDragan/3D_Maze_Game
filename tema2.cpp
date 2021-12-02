@@ -26,6 +26,11 @@ Tema2::~Tema2()
 
 void Tema2::Init()
 {
+
+    transPlayerX = 0;
+    transPlayerY = 0;
+    transPlayerZ = 0;
+
     {
         Mesh* mesh = new Mesh("box");
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "box.obj");
@@ -157,25 +162,43 @@ void Tema2::DrawPlayer(float deltaTimeSeconds) {
     //corp
     glm::mat4 modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 2, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
     modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1.75f, 1));
-    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 1, 0));
+    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5f, 0.2f));
 
     //cap
+    modelMatrix = glm::mat4(1);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 3.15f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.65f, 0.65f, 0.65f));
+    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.7f, 0.7f, 0.3f));
+
+    //picioare
+    modelMatrix = glm::mat4(1);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.5, 0.5f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 1.75f, 0.5f));
+    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.4f ,0.8f));
+
+    modelMatrix = glm::mat4(1);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.5f, 0.5f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 1.75f, 0.5f));
+    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.4f, 0.8f));
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!! TODO: maini frumoase
+    // 
+    //// maini
     //modelMatrix = glm::mat4(1);
-    //modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 3, 0));
+    //modelMatrix = glm::translate(modelMatrix, glm::vec3(-1, 2.25f, 0));
     //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-    //RenderSimpleMesh(meshes["box"], shaders["SkinShader"], modelMatrix);
+    //RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
-    //legs
-    modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.5, 0.5, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 1.75f, 0.5));
-    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0,0,1));
+    //modelMatrix = glm::mat4(1);
+    //modelMatrix = glm::translate(modelMatrix, glm::vec3(1, 2.25f, 0));
+    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
+    //RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
-    modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.5, 0.5, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 1.75f, 0.5));
-    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0, 1));
     
 }
 
@@ -270,6 +293,31 @@ void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelM
 void Tema2::OnInputUpdate(float deltaTime, int mods)
 {
     // Add key press event
+    
+    // aici ar trebui pentru buton jump sau ceva
+    //if (window->KeyHold(GLFW_KEY_W)) {
+    //    // translatare sus pe oy
+    //    transPlayerY += 10 * deltaTime;
+
+    //}
+    if (window->KeyHold(GLFW_KEY_A)) {
+        // translatare dreapta pe ox
+        transPlayerX += 10 * deltaTime;
+    }
+    if (window->KeyHold(GLFW_KEY_D)) {
+        // translatare stanga pe ox
+        transPlayerX -= 10 * deltaTime;
+
+    }
+    if (window->KeyHold(GLFW_KEY_R)) {
+        // translatare sus pe oz
+        transPlayerZ += 10 * deltaTime;
+
+    }
+    if (window->KeyHold(GLFW_KEY_F)) {
+        // translatare jos pe oz
+        transPlayerZ -= 10 * deltaTime;
+    }
 }
 
 

@@ -34,6 +34,9 @@ namespace m1
         void OnWindowResize(int width, int height) override;
         void DrawPlayer(float deltaTimeSeconds);
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
+    
+    protected:
+        float transPlayerX, transPlayerY, transPlayerZ;
 
     };
 }   // namespace m1
