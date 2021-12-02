@@ -37,32 +37,7 @@ void Tema2::Init()
         meshes[mesh->GetMeshID()] = mesh;
     }
 
-    // Create a simple cube
-    {
-        vector<VertexFormat> vertices
-        {
-            VertexFormat(glm::vec3(-1, -1,  1), glm::vec3(0, 1, 1), glm::vec3(0.2, 0.8, 0.2)),
-            VertexFormat(glm::vec3(1, -1,  1), glm::vec3(1, 0, 1), glm::vec3(0.9, 0.4, 0.2)),
-            VertexFormat(glm::vec3(-1,  1,  1), glm::vec3(1, 0, 0), glm::vec3(0.7, 0.7, 0.1)),
-            VertexFormat(glm::vec3(1,  1,  1), glm::vec3(0, 1, 0), glm::vec3(0.7, 0.3, 0.7)),
-            VertexFormat(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), glm::vec3(0.3, 0.5, 0.4)),
-            VertexFormat(glm::vec3(1, -1, -1), glm::vec3(0, 1, 1), glm::vec3(0.5, 0.2, 0.9)),
-            VertexFormat(glm::vec3(-1,  1, -1), glm::vec3(1, 1, 0), glm::vec3(0.7, 0.0, 0.7)),
-            VertexFormat(glm::vec3(1,  1, -1), glm::vec3(0, 0, 1), glm::vec3(0.1, 0.5, 0.8)),
-        };
 
-        vector<unsigned int> indices =
-        {
-            0, 1, 2,        1, 3, 2,
-            2, 3, 7,        2, 7, 6,
-            1, 7, 3,        1, 5, 7,
-            6, 7, 4,        7, 5, 4,
-            0, 4, 1,        1, 4, 5,
-            2, 6, 4,        0, 2, 4,
-        };
-
-        CreateMesh("cube", vertices, indices);
-    }
 
     // Create a shader program for drawing face polygon with the color of the normal
     {
@@ -72,13 +47,7 @@ void Tema2::Init()
         shader->CreateAndLink();
         shaders[shader->GetName()] = shader;
     }
-    //{
-    //    Shader* shader = new Shader("SkinShader");
-    //    shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "tema2", "tema2-shaders", "T2VertexShader.glsl"), GL_VERTEX_SHADER);
-    //    shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "tema2", "tema2-shaders", "T2FragmentShader.glsl"), GL_FRAGMENT_SHADER);
-    //    shader->CreateAndLink();
-    //    shaders[shader->GetName()] = shader;
-    //}
+
 }
 
 
@@ -161,45 +130,42 @@ void Tema2::DrawPlayer(float deltaTimeSeconds) {
     
     //corp
     glm::mat4 modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 2, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 1.25f, 0));
     modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1.75f, 1));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 1, 0.5f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5f, 0.2f));
 
     //cap
     modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 3.15f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 1.9f, 0));
     modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.65f, 0.65f, 0.65f));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.7f, 0.7f, 0.3f));
 
     //picioare
     modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.5, 0.5f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.25, 0.5f, 0));
     modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 1.75f, 0.5f));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.75f, 0.3f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.4f ,0.8f));
 
     modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.5f, 0.5f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.25f, 0.5f, 0));
     modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5, 1.75f, 0.5f));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.75f, 0.3f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.4f, 0.8f));
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!! TODO: maini frumoase
-    // 
-    //// maini
-    //modelMatrix = glm::mat4(1);
-    //modelMatrix = glm::translate(modelMatrix, glm::vec3(-1, 2.25f, 0));
-    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-    //RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
+    // maini
+    modelMatrix = glm::mat4(1);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.3f, 1.6f, 0));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
+    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
-    //modelMatrix = glm::mat4(1);
-    //modelMatrix = glm::translate(modelMatrix, glm::vec3(1, 2.25f, 0));
-    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 0.5f));
-    //RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
+    modelMatrix = glm::mat4(1);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.3f, 1.6f, 0));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
+    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
-    
 }
 
 
@@ -209,40 +175,6 @@ void Tema2::FrameEnd()
 }
 
 
-// Render din lab6
-//void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix)
-//{
-//    if (!mesh || !shader || !shader->GetProgramID())
-//        return;
-//
-//    // Render an object using the specified shader and the specified position
-//    glUseProgram(shader->program);
-//
-//    // TODO(student): Get shader location for uniform mat4 "Model"
-//    int loc_model_matrix = glGetUniformLocation(shader->program, "Model");
-//    // TODO(student): Set shader uniform "Model" to modelMatrix
-//    glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-//
-//    glm::mat4 viewMatrix = GetSceneCamera()->GetViewMatrix();
-//    // TODO(student): Get shader location for uniform mat4 "View"
-//    int loc_view_matrix = glGetUniformLocation(shader->program, "View");
-//    // TODO(student): Set shader uniform "View" to viewMatrix
-//    glUniformMatrix4fv(loc_view_matrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-//
-//
-//    glm::mat4 projectionMatrix = GetSceneCamera()->GetProjectionMatrix();
-//    // TODO(student): Get shader location for uniform mat4 "Projection"
-//    int loc_projection_matrix = glGetUniformLocation(shader->program, "Projection");
-//    // TODO(student): Set shader uniform "Projection" to projectionMatrix
-//    glUniformMatrix4fv(loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-//
-//
-//    // Draw the object
-//    glBindVertexArray(mesh->GetBuffers()->m_VAO);
-//    glDrawElements(mesh->GetDrawMode(), static_cast<int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
-//}
-
-// din lab7
 void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color)
 {
     if (!mesh || !shader || !shader->GetProgramID())
@@ -250,16 +182,6 @@ void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelM
 
     // Render an object using the specified shader and the specified position
     glUseProgram(shader->program);
-
-    // Set shader uniforms for light & material properties
-    // TODO(student): Set light position uniform
-    //GLint light_poz = glGetUniformLocation(shader->program, "light_position");
-    //glUniform3fv(light_poz, 1, glm::value_ptr(lightPosition));
-
-    //glm::vec3 eyePosition = GetSceneCamera()->m_transform->GetWorldPosition();
-    //// TODO(student): Set eye position (camera position) uniform
-    //GLint eye_poz = glGetUniformLocation(shader->program, "eye_positionn");
-    //glUniform3fv(eye_poz, 1, glm::value_ptr(eyePosition));
 
     // TODO(student): Set material property uniforms (shininess, kd, ks, object color)
     GLint object_color_poz = glGetUniformLocation(shader->program, "object_color");
@@ -284,37 +206,31 @@ void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelM
     glDrawElements(mesh->GetDrawMode(), static_cast<int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 }
 
-/*
- *  These are callback functions. To find more about callbacks and
- *  how they behave, see `input_controller.h`.
- */
-
-
 void Tema2::OnInputUpdate(float deltaTime, int mods)
 {
     // Add key press event
     
     // aici ar trebui pentru buton jump sau ceva
-    //if (window->KeyHold(GLFW_KEY_W)) {
+    //if (window->KeyHold(GLFW_KEY_SPACE)) {
     //    // translatare sus pe oy
     //    transPlayerY += 10 * deltaTime;
 
     //}
-    if (window->KeyHold(GLFW_KEY_A)) {
+    if (window->KeyHold(GLFW_KEY_RIGHT)) {
         // translatare dreapta pe ox
         transPlayerX += 10 * deltaTime;
     }
-    if (window->KeyHold(GLFW_KEY_D)) {
+    if (window->KeyHold(GLFW_KEY_LEFT)) {
         // translatare stanga pe ox
         transPlayerX -= 10 * deltaTime;
 
     }
-    if (window->KeyHold(GLFW_KEY_R)) {
+    if (window->KeyHold(GLFW_KEY_UP)) {
         // translatare sus pe oz
         transPlayerZ += 10 * deltaTime;
 
     }
-    if (window->KeyHold(GLFW_KEY_F)) {
+    if (window->KeyHold(GLFW_KEY_DOWN)) {
         // translatare jos pe oz
         transPlayerZ -= 10 * deltaTime;
     }

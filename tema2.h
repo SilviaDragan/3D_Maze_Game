@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "components/simple_scene.h"
+#include "Maze.h"
 
 
 namespace m1
