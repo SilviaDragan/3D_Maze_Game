@@ -1,8 +1,8 @@
 #include "lab_m1/tema2/tema2.h"
 
-#include <vector>
-#include <string>
-#include <iostream>
+//#include <vector>
+//#include <string>
+//#include <iostream>
 
 using namespace std;
 using namespace m1;
@@ -48,6 +48,18 @@ void Tema2::Init()
         shaders[shader->GetName()] = shader;
     }
 
+    InitMaze();
+}
+
+void Tema2::InitMaze() {
+    pair<vector<vector<int>>, set<pair<int, int>>> tmp = GenerateMaze();
+    grid = tmp.first;
+    playerValidPoz = tmp.second;
+    for (int i = 0; i < GRID_SIZE; i++) {
+        for (int j = 0; j < GRID_SIZE; j++)
+            cout << grid[i][j] << " ";
+        cout << endl;
+    }
 }
 
 
@@ -123,8 +135,25 @@ void Tema2::FrameStart()
 
 void Tema2::Update(float deltaTimeSeconds)
 {
-    DrawPlayer(deltaTimeSeconds);
+    DrawMaze(grid);
+    DrawPlayer(deltaTimeSeconds); // va trebui translatat la pozitia initiala valida in maze
+    DrawEnemy(deltaTimeSeconds);
 }
+
+void Tema2::DrawMaze(vector<vector<int>> grid) {
+    for (int i = 0; i < GRID_SIZE; i++) {
+        for (int j = 0; j < GRID_SIZE; j++) {
+            if (grid[i][j] == 1) {
+                glm::mat4 modelMatrix = glm::mat4(1);
+                modelMatrix = glm::translate(modelMatrix, glm::vec3(i, 0, j));
+                RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.1f, 0.2f));
+            }
+        }
+           
+    }
+}
+
+void Tema2::DrawEnemy(float deltaTimeSeconds) {}
 
 void Tema2::DrawPlayer(float deltaTimeSeconds) {
     
@@ -158,15 +187,18 @@ void Tema2::DrawPlayer(float deltaTimeSeconds) {
     // maini
     modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.3f, 1.6f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
     modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
     modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, glm::vec3(0.3f, 1.6f, 0));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(transPlayerX, transPlayerY, transPlayerZ));
     modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
 }
+
 
 
 void Tema2::FrameEnd()

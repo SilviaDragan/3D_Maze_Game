@@ -1,9 +1,17 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
+#include <algorithm>
+#include <random>
+#include <set>
+#include <iterator>
 
 #include "components/simple_scene.h"
 #include "Maze.h"
+using namespace std;
 
 
 namespace m1
@@ -34,10 +42,15 @@ namespace m1
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
         void DrawPlayer(float deltaTimeSeconds);
+        void DrawEnemy(float deltaTimeSeconds);
+        void InitMaze();
+        void DrawMaze(vector<vector<int>> grid);
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
     
     protected:
         float transPlayerX, transPlayerY, transPlayerZ;
 
+        vector<vector<int>> grid;
+        set<pair<int, int>> playerValidPoz;
     };
 }   // namespace m1
