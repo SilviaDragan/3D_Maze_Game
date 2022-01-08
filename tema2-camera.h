@@ -51,14 +51,16 @@ namespace implemented
             // TODO(student): Translate the camera using the `forward` vector.
             // What's the difference between `TranslateForward()` and
             // `MoveForward()`?
-            position += glm::normalize(forward) * distance;
+            glm::vec3 forwardV = glm::normalize(glm::vec3(forward.x, forward.y, forward.z));
+            position += forwardV * distance;
 
         }
 
         void TranslateUpward(float distance)
         {
             // TODO(student): Translate the camera using the `up` vector.
-            position += glm::normalize(up) * distance;
+            glm::vec3 upV = glm::normalize(glm::vec3(up.x, up.y, up.z));
+            position += up * distance;
 
         }
 
@@ -74,7 +76,8 @@ namespace implemented
             // actually use the projected `right` vector (projected onto the
             // ground plane), which makes more sense because we will keep the
             // same distance from the ground plane.
-            position += glm::normalize(right) * distance;
+            glm::vec3 dir = glm::normalize(glm::vec3(right.x, right.y, right.z));
+            position += dir * distance;
 
         }
 
@@ -108,11 +111,8 @@ namespace implemented
             // TODO(student): Compute the new `right` and `up`. This time,
             // `forward` stays the same. Use `glm::rotate()`. Don't forget
             // to normalize the vectors!
-            glm::vec4 aux = glm::rotate(glm::mat4(1.f), angle, glm::vec3(0, 1, 0)) * glm::vec4(right, 1);
-            right = glm::normalize(glm::vec3(aux));
-
-            aux = glm::rotate(glm::mat4(1.f), angle, forward) * glm::vec4(up, 0);
-            forward = glm::normalize(glm::vec3(aux));
+            glm::vec4 newV = glm::rotate(glm::mat4(1), angle, forward) * glm::vec4(right, 1);
+            right = glm::normalize(glm::vec3(newV));
 
             up = glm::cross(right, forward);
 

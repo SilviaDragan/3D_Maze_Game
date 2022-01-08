@@ -10,9 +10,15 @@
 #include <iterator>
 
 #include "components/simple_scene.h"
+#include "tema2-camera.h"
 #include "Maze.h"
 using namespace std;
+using namespace implemented;
 
+#define ENEMIES_NO 5
+#define GAME_TIME 100
+#define Z_FAR		(200.f)
+#define Z_NEAR		(0.01f)
 
 namespace m1
 {
@@ -43,6 +49,7 @@ namespace m1
         void OnWindowResize(int width, int height) override;
         void DrawPlayer(float deltaTimeSeconds);
         void DrawEnemy(float deltaTimeSeconds);
+        void InitCamera();
         void InitMaze();
         void DrawMaze(vector<vector<int>> grid);
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
@@ -52,5 +59,27 @@ namespace m1
 
         vector<vector<int>> grid;
         set<pair<int, int>> playerValidPoz;
+        int playerInitialX;
+        int playerInitialZ;
+        int playerSpeed;
+
+        CameraT2 *camera;
+        glm::mat4 projectionMatrix;
+        bool thirdPersonCamera;
+        bool renderCameraTarget;
+
+        /*vector<Bullet*> bullets;
+        bool spawnNewBullet;
+        clock_t currentTimeForBullets;
+        float fireRate;
+        float countForBullets;
+        float bulletMaxDistance;
+        clock_t currentTime;
+        clock_t lastTime;
+        clock_t lastBullet;
+        float timeCount;
+         vector<Enemy*> enemies;*/
+
+
     };
 }   // namespace m1

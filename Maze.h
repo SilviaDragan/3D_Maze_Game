@@ -1,6 +1,6 @@
 #pragma once
 #include "tema2.h"
-#define GRID_SIZE 8
+#define GRID_SIZE 10
 
 using namespace std;
 
