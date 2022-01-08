@@ -58,7 +58,7 @@ void Tema2::Init()
 
 void Tema2::InitCamera() {
     camera = new CameraT2();
-    camera->Set(glm::vec3(4 * playerInitialX + 2, 1, 4 * playerInitialZ + 2), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
+    camera->Set(glm::vec3(playerInitialX, 1, playerInitialZ), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     projectionMatrix = glm::perspective(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
     cout << camera->position << endl;
 }
@@ -139,18 +139,17 @@ Mesh* Tema2::CreateMesh(const char* name, const std::vector<VertexFormat>& verti
     return meshes[name];
 }
 
-
 void Tema2::FrameStart()
 {
     // Clears the color buffer (using the previously set color) and depth buffer
-    glClearColor(0.7, 0.8, 1, 1);
+    glClearColor(0.6, 0.8, 1, 1);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::ivec2 resolution = window->GetResolution();
     // Sets the screen area where to draw
     glViewport(0, 0, resolution.x, resolution.y);
 }
-
 
 void Tema2::Update(float deltaTimeSeconds)
 {
@@ -240,21 +239,19 @@ void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelM
     // Render an object using the specified shader and the specified position
     glUseProgram(shader->program);
 
-    // TODO(student): Set material property uniforms (shininess, kd, ks, object color)
-    GLint object_color_poz = glGetUniformLocation(shader->program, "object_color");
-    glUniform3fv(object_color_poz, 1, glm::value_ptr(color));
+    GLint locObject = glGetUniformLocation(shader->program, "object_color");
+    glUniform3fv(locObject, 1, glm::value_ptr(color));
 
     // Bind model matrix
     GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");
     glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 
     // Bind view matrix
-    glm::mat4 viewMatrix = GetSceneCamera()->GetViewMatrix();
+    glm::mat4 viewMatrix = camera->GetViewMatrix();
     int loc_view_matrix = glGetUniformLocation(shader->program, "View");
     glUniformMatrix4fv(loc_view_matrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
     // Bind projection matrix
-    glm::mat4 projectionMatrix = GetSceneCamera()->GetProjectionMatrix();
     int loc_projection_matrix = glGetUniformLocation(shader->program, "Projection");
     glUniformMatrix4fv(loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
