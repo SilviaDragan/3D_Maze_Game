@@ -6,7 +6,7 @@
 
 using namespace std;
 using namespace m1;
-
+using namespace e;
 
 /*
  *  To find out more about `FrameStart`, `Update`, `FrameEnd`
@@ -26,11 +26,16 @@ Tema2::~Tema2()
 
 void Tema2::Init()
 {
-    //window->DisablePointer();
+    window->DisablePointer();
     srand(time(0));
-    playerSpeed = 10;
+    playerSpeed = 5;
+    ramainingHealth = 100;
     // start with camera in third person mode
     thirdPersonCamera = true;
+    initialTime = clock();
+    canShoot = true;
+    bulletDist = 0;
+    maxBulletDist = 100;
     InitMaze();
     InitCamera();
     {
@@ -58,13 +63,19 @@ void Tema2::Init()
 
 void Tema2::InitCamera() {
     camera = new CameraT2();
-    camera->Set(glm::vec3(playerInitialX, 1, playerInitialZ), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
+    camera->Set(glm::vec3(playerInitialX, 1.25f, playerInitialZ), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     projectionMatrix = glm::perspective(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
-    cout << camera->position << endl;
+
+    HUDCamera = new CameraT2();
+    HUDCamera->Set(glm::vec3(-5, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
+    projectionMatrixHUD = glm::ortho(0.f, 5.f, 0.f, 5.f, .01f, 10.f);
 }
 
 void Tema2::InitMaze() {
     pair<vector<vector<int>>, set<pair<int, int>>> tmp = GenerateMaze();
+    mazeBoundUpper = 2 * GRID_SIZE + 1;
+    mazeBoundLower = 1;
+
     grid = tmp.first;
     playerValidPoz = tmp.second;
     for (int i = 0; i < GRID_SIZE; i++) {
@@ -74,11 +85,25 @@ void Tema2::InitMaze() {
     }
     auto it = playerValidPoz.begin();
     std::advance(it, rand() % playerValidPoz.size());
-    playerInitialX = 2 * it->first  + 1;
-    playerInitialZ = 2 * it->second + 1;
-    //cout << "initial poz= " << playerInitialX << " " << playerInitialY << endl;
-    //transPlayerX = 2*playerInitialX;
-    //transPlayerZ = 2*playerInitialY;
+    playerInitialX = 2 * it->first + 2;
+    playerInitialZ = 2 * it->second + 2;
+    //cout << "initial poz= " << playerInitialX << " " << playerInitialZ << endl;
+
+    playerValidPoz.erase(it);
+
+ /*   for (int i = 0; i < ENEMIES_NO; i++) {
+        auto enemy_it = playerValidPoz.begin();
+        std::advance(enemy_it, rand() % playerValidPoz.size());
+            
+        Enemy *newEnemy = new Enemy();
+        newEnemy->initialPoz = glm::vec3(enemy_it->first, 1, enemy_it->second);
+        newEnemy->currentPoz = glm::vec3(enemy_it->first, 1, enemy_it->second);
+
+        newEnemy->defeated = false;
+        enemies.push_back(newEnemy);
+    }*/
+
+    
 }
 
 
@@ -151,11 +176,78 @@ void Tema2::FrameStart()
     glViewport(0, 0, resolution.x, resolution.y);
 }
 
+bool Tema2::solvedMaze() {
+    if (camera->GetTargetPosition().x >= mazeBoundUpper || camera->GetTargetPosition().x <= mazeBoundLower ||
+            camera->GetTargetPosition().z >= mazeBoundUpper || camera->GetTargetPosition().z <= mazeBoundLower) {
+        return true;
+    }
+    return false;
+}
+
 void Tema2::Update(float deltaTimeSeconds)
 {
     DrawMaze(grid);
-    DrawPlayer(deltaTimeSeconds);
-    DrawEnemy(deltaTimeSeconds);
+  /*  for (int i = 0; i < enemies.size(); i++) {
+        Enemy* e = enemies[i];
+        if (e->defeated) {
+            enemies.erase(enemies.begin() + i);
+        }
+        else {
+            DrawEnemy(deltaTimeSeconds, e->currentPoz);
+        }
+    }*/
+
+    currentTime = clock();
+    if (currentTime - initialTime >= GAME_TIME * CLOCKS_PER_SEC) {
+        cout << "GAME OVER, TIME'S UP!" << endl;
+        exit(0);
+    }
+
+    if (solvedMaze()) {
+        cout << "CONGRATULATIONS! YOU WIN!" << endl;
+        exit(0);
+    }
+
+    if (thirdPersonCamera) {
+        //if ()
+
+        DrawPlayer(deltaTimeSeconds);
+
+    }
+
+    if (!thirdPersonCamera) {
+        if (!canShoot) {
+            if (bulletDist < maxBulletDist) {
+                cout << "shoot" << endl;
+                bulletDist += 10 * deltaTimeSeconds;
+                DrawBullet();
+            }
+            else {
+                bulletDist = 0;
+                canShoot = true;
+            }
+        }
+        
+    }
+
+    // Healthbar render
+    {
+        glm::mat4 modelMatrix = glm::mat4(1);
+        glm::vec3 barSpawn = HUDCamera->position + glm::vec3(1, 1, 0.6 + (-100 + ramainingHealth) / 100);
+        modelMatrix = glm::translate(modelMatrix, barSpawn);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.6, 0.2, 0.6));
+        RenderMesh(meshes["healthbar"], shaders["LabShader"], modelMatrix);
+    }
+
+    // Timer render
+    {
+        glm::mat4 modelMatrix = glm::mat4(1);
+        glm::vec3 barSpawn = HUDCamera->position + glm::vec3(1, 1.7, -0.6);
+        modelMatrix = glm::translate(modelMatrix, barSpawn);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.6, 0.2, 0.6));
+        RenderMesh(meshes["timer"], shaders["LabShader"], modelMatrix);
+    }
+    
 }
 
 void Tema2::DrawMaze(vector<vector<int>> grid) {
@@ -176,53 +268,60 @@ void Tema2::DrawMaze(vector<vector<int>> grid) {
     }
 }
 
-void Tema2::DrawEnemy(float deltaTimeSeconds) {
+void Tema2::DrawEnemy(float deltaTimeSeconds, glm::vec3 poz) {
     glm::mat4 modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(2, 1, 2));
+    modelMatrix = glm::translate(modelMatrix, poz);
     modelMatrix = glm::scale(modelMatrix, glm::vec3(1.25f, 1.25f, 1.25f));
     RenderSimpleMesh(meshes["sphere"], shaders["BodyShader"], modelMatrix, glm::vec3(0.2f, 0, 0.2f));
+}
+
+void Tema2::DrawBullet() {
+    glm::mat4 modelMatrix = glm::mat4(1);
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(camera->GetTargetPosition().x, 1, bulletDist));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.25f, 0.25f, 0.25f));
+    RenderSimpleMesh(meshes["sphere"], shaders["BodyShader"], modelMatrix, glm::vec3(1, 1, 1));
 }
 
 void Tema2::DrawPlayer(float deltaTimeSeconds) {
     //corp
     glm::mat4 modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 1.25f, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 1, 0.5f));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, -0.1f, 0));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.7f, 0.2f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5f, 0.2f));
 
     //cap
     modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 1.9f, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 0.35f, 0));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.7f, 0.7f, 0.3f));
 
     //picioare
     modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.25, 0.5f, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.75f, 0.3f));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.2, -0.7f, 0));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f, 0.5f, 0.2f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.4f ,0.8f));
 
     modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.25f, 0.5f, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.75f, 0.3f));
+    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.2f, -0.7f, 0));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f, 0.5f, 0.2f));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.4f, 0.8f));
 
-    // maini
-    modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.3f, 1.6f, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
-    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
+    //// maini
+    //modelMatrix = glm::mat4(1);
+    //modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
+    //modelMatrix = glm::translate(modelMatrix, glm::vec3(-0.3f, 1, 0));
+    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
+    //RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
-    modelMatrix = glm::mat4(1);
-    modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
-    modelMatrix = glm::translate(modelMatrix, glm::vec3(0.3f, 1.6f, 0));
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
-    RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
+    //modelMatrix = glm::mat4(1);
+    //modelMatrix = glm::translate(modelMatrix, camera->GetTargetPosition());
+    //modelMatrix = glm::translate(modelMatrix, glm::vec3(0.3f, 1, 0));
+    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.3f, 0.3f, 0.3f));
+    //RenderSimpleMesh(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0, 0.5, 0.2));
 
 }
 
@@ -260,28 +359,41 @@ void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelM
     glDrawElements(mesh->GetDrawMode(), static_cast<int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 }
 
+void Tema2::RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix)
+{
+    if (!mesh || !shader || !shader->program)
+        return;
+
+    // Render an object using the specified shader and the specified position
+    shader->Use();
+    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(HUDCamera->GetViewMatrix()));
+    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrixHUD));
+    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+    mesh->Render();
+}
+
 void Tema2::OnInputUpdate(float deltaTime, int mods)
 {
     // Add key press event
    
-    //if (window->KeyHold(GLFW_KEY_RIGHT)) {
-    //    camera->TranslateRight(-10 * deltaTime);
-    //}
-    //if (window->KeyHold(GLFW_KEY_LEFT)) {
-    //    camera->TranslateRight(10 * deltaTime);
+    if (window->KeyHold(GLFW_KEY_RIGHT)) {
+        camera->TranslateRight(playerSpeed * deltaTime);
+    }
+    if (window->KeyHold(GLFW_KEY_LEFT)) {
+        camera->TranslateRight(-playerSpeed * deltaTime);
 
-    //}
-    //if (window->KeyHold(GLFW_KEY_UP)) {
-    //    camera->MoveForward(10 * deltaTime);
+    }
+    if (window->KeyHold(GLFW_KEY_UP)) {
+        camera->MoveForward(playerSpeed * deltaTime);
 
-    //}
-    //if (window->KeyHold(GLFW_KEY_DOWN)) {
-    //    // translatare jos pe oz
-    //    camera->MoveForward(-10 * deltaTime);
-    //}
+    }
+    if (window->KeyHold(GLFW_KEY_DOWN)) {
+        camera->MoveForward(-playerSpeed * deltaTime);
+    }
 
      // move player functionality
-    if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
+  /*  if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
     {
         if (window->KeyHold(GLFW_KEY_W)) {
             camera->MoveForward(1 * deltaTime * playerSpeed);
@@ -306,7 +418,7 @@ void Tema2::OnInputUpdate(float deltaTime, int mods)
         if (window->KeyHold(GLFW_KEY_E)) {
             camera->TranslateUpward(1 * deltaTime * playerSpeed);
         }
-    }
+    }*/
 }
 
 
@@ -323,9 +435,9 @@ void Tema2::OnKeyPress(int key, int mods)
         thirdPersonCamera = !thirdPersonCamera;
     }
 
-    if (key == GLFW_KEY_SPACE) {
+    if (!thirdPersonCamera && key == GLFW_KEY_SPACE && canShoot) {
         // spawn projectile
-        //SpawnProjectile();
+        canShoot = false;
     }
 }
 
