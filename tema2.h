@@ -16,7 +16,7 @@
 
 using namespace std;
 using namespace implemented;
-//using namespace e;
+using namespace enemy;
 
 
 #define ENEMIES_NO 5
@@ -52,7 +52,7 @@ namespace m1
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
         void DrawPlayer(float deltaTimeSeconds);
-        void DrawEnemy(float deltaTimeSeconds, glm::vec3 poz);
+        void DrawEnemy(glm::vec3 poz);
         void InitCamera();
         void InitMaze();
         bool solvedMaze();
@@ -84,7 +84,7 @@ namespace m1
 
         int ramainingHealth;
 
-        //vector<e::Enemy*> enemies;
+        vector<Enemy*> enemies;
 
         bool canShoot;
         float bulletDist, maxBulletDist;

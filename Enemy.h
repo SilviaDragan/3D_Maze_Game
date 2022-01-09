@@ -1,14 +1,13 @@
 #pragma once
-#include "tema2.h"
-
-namespace e {
+#include "components/simple_scene.h"
+namespace enemy {
 	class Enemy {
-	public:
-		Enemy();
-		~Enemy();
+		public:
+			Enemy();
+			~Enemy();
 		
-		glm::vec3 initialPoz;
-		glm::vec3 currentPoz;
-		bool defeated;
+			glm::vec3 initialPoz;
+			glm::vec3 currentPoz;
+			bool defeated;
 	};
 }

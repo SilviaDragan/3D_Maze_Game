@@ -6,7 +6,7 @@
 
 using namespace std;
 using namespace m1;
-using namespace e;
+using namespace enemy;
 
 /*
  *  To find out more about `FrameStart`, `Update`, `FrameEnd`
@@ -35,7 +35,7 @@ void Tema2::Init()
     initialTime = clock();
     canShoot = true;
     bulletDist = 0;
-    maxBulletDist = 100;
+    maxBulletDist = 20;
     InitMaze();
     InitCamera();
     {
@@ -91,17 +91,17 @@ void Tema2::InitMaze() {
 
     playerValidPoz.erase(it);
 
- /*   for (int i = 0; i < ENEMIES_NO; i++) {
+    for (int i = 0; i < ENEMIES_NO; i++) {
         auto enemy_it = playerValidPoz.begin();
         std::advance(enemy_it, rand() % playerValidPoz.size());
             
         Enemy *newEnemy = new Enemy();
-        newEnemy->initialPoz = glm::vec3(enemy_it->first, 1, enemy_it->second);
-        newEnemy->currentPoz = glm::vec3(enemy_it->first, 1, enemy_it->second);
+        newEnemy->initialPoz = glm::vec3(2 * enemy_it->first + 1, 1, 2 * enemy_it->second + 1);
+        newEnemy->currentPoz = glm::vec3(2 * enemy_it->first + 1, 1, 2 * enemy_it->second + 1);
 
         newEnemy->defeated = false;
         enemies.push_back(newEnemy);
-    }*/
+    }
 
     
 }
@@ -209,8 +209,6 @@ void Tema2::Update(float deltaTimeSeconds)
     }
 
     if (thirdPersonCamera) {
-        //if ()
-
         DrawPlayer(deltaTimeSeconds);
 
     }
@@ -218,7 +216,7 @@ void Tema2::Update(float deltaTimeSeconds)
     if (!thirdPersonCamera) {
         if (!canShoot) {
             if (bulletDist < maxBulletDist) {
-                cout << "shoot" << endl;
+                //cout << "shoot" << endl;
                 bulletDist += 10 * deltaTimeSeconds;
                 DrawBullet();
             }
@@ -266,9 +264,16 @@ void Tema2::DrawMaze(vector<vector<int>> grid) {
             }
         }  
     }
+
+    for (int i = 0; i < ENEMIES_NO; i++) {
+        Enemy* e = enemies[i];
+        if (!e->defeated) {
+            DrawEnemy(e->currentPoz);
+        }
+    }
 }
 
-void Tema2::DrawEnemy(float deltaTimeSeconds, glm::vec3 poz) {
+void Tema2::DrawEnemy(glm::vec3 poz) {
     glm::mat4 modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, poz);
     modelMatrix = glm::scale(modelMatrix, glm::vec3(1.25f, 1.25f, 1.25f));
@@ -391,6 +396,13 @@ void Tema2::OnInputUpdate(float deltaTime, int mods)
     if (window->KeyHold(GLFW_KEY_DOWN)) {
         camera->MoveForward(-playerSpeed * deltaTime);
     }
+    if (window->KeyHold(GLFW_KEY_Q)) {
+        camera->TranslateUpward(-1 * deltaTime * playerSpeed);
+    }
+
+    if (window->KeyHold(GLFW_KEY_E)) {
+        camera->TranslateUpward(1 * deltaTime * playerSpeed);
+    }
 
      // move player functionality
   /*  if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
@@ -491,3 +503,39 @@ void Tema2::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
 void Tema2::OnWindowResize(int width, int height)
 {
 }
+
+/*
+*  // move projectile in space
+                    projectiles[i].x += projectiles[i].forward.x;
+                    projectiles[i].y += projectiles[i].forward.y;
+                    projectiles[i].z += projectiles[i].forward.z;
+
+                    // render projectile
+                    glm::mat4 modelMatrix = glm::mat4(1);
+                    modelMatrix = glm::translate(modelMatrix, glm::vec3(projectiles[i].x, projectiles[i].y, projectiles[i].z));
+                    modelMatrix = glm::scale(modelMatrix, glm::vec3(projectiles[i].size));
+                    RenderSimpleMesh(meshes["bullet"], shaders["LabShader"], modelMatrix);
+* 
+bool CheckPlayerWallCollision(float playerX, float playerY, float playerZ, gridSquare s) {
+    bool collisionX = playerX >= s.x * 4 && s.x + s.length >= playerX;
+    bool collisionY = playerY >= s.y && s.y + s.length >= playerY;
+    bool collisionZ = playerZ >= s.z * 4 && s.z + s.length >= playerZ;
+    return (collisionX && collisionZ);
+}
+
+bool CheckPlayerEnemyCollision(float playerX, float playerY, float playerZ, enemy e) {
+    bool collisionX = playerX + 0.5 >= e.x + e.walkedDistance && e.x + e.walkedDistance + e.size >= playerX;
+    bool collisionY = playerY >= e.y && e.y + e.size >= playerY;
+    bool collisionZ = playerZ + 0.1 >= e.z + e.walkedDistance && e.z + e.size + e.walkedDistance >= playerZ - 0.1;
+    return (collisionX && collisionZ);
+}
+
+bool CheckProjectileEnemyCollision(projectile p, enemy e) {
+    bool collisionX = e.x + e.size * 1.4 >= p.x && p.x + p.size >= e.x;
+    bool collisionY = e.y + e.size * 1.4 >= p.y && p.y + p.size >= e.y;
+    bool collisionZ = e.z + e.size * 1.4 >= p.z && p.z + p.size >= e.z;
+    return collisionX && collisionY && collisionZ;
+}
+
+
+*/
