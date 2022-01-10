@@ -227,17 +227,17 @@ void Tema2::Update(float deltaTimeSeconds)
     //// Healthbar render
     
     glm::mat4 modelMatrix = glm::mat4(1);
-    ////glm::vec3 barSpawn = HUDCamera->position + glm::vec3(1, 1, 0.6 + (-100 + playerHealth) / 100);
-    //modelMatrix = glm::translate(modelMatrix, HUDcamera->position + glm::vec3(1, 1, 0.6));
-    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 0.6));
-    //RenderSimpleMeshHUD(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.45f, 0.25f, 0.55f));
+    //glm::vec3 barSpawn = HUDCamera->position + glm::vec3(1, 1, 0.6 + (-100 + playerHealth) / 100);
+    modelMatrix = glm::translate(modelMatrix, HUDcamera->position + glm::vec3(1, 1, 0.6));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 1.5f + (ramainingHealth-70)/50));
+    RenderSimpleMeshHUD(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.45f, 0.25f, 0.55f));
     
 
     // Timer
     modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, HUDcamera->position + glm::vec3(1, 1.7, 0.6));
-    if ((5.5f - 0.1 * (currentTime - initialTime) / CLOCKS_PER_SEC) > 0) {
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 5.5f - 0.1 * ((currentTime - initialTime) / CLOCKS_PER_SEC)));
+    if ((5.5f - 0.15 * (currentTime - initialTime) / CLOCKS_PER_SEC) > 0) {
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 5.5f - 0.15 * ((currentTime - initialTime) / CLOCKS_PER_SEC)));
         RenderSimpleMeshHUD(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.85f, 0.85f, 0.85f));
     }
        

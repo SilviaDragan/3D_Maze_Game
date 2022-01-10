@@ -22,7 +22,7 @@ using namespace enemy;
 
 #define ENEMIES_NO 5
 #define GAME_TIME 40
-#define MAX_HEALTH 50
+#define MAX_HEALTH 200
 #define Z_FAR		(200.f)
 #define Z_NEAR		(0.01f)
 
