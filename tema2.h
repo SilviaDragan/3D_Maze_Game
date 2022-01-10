@@ -21,7 +21,7 @@ using namespace enemy;
 
 
 #define ENEMIES_NO 5
-#define GAME_TIME 600
+#define GAME_TIME 40
 #define MAX_HEALTH 50
 #define Z_FAR		(200.f)
 #define Z_NEAR		(0.01f)
@@ -64,23 +64,22 @@ namespace m1
         glm::vec3 getPlayerLocation();
         void DrawMaze(vector<vector<int>> grid);
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
-        void RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix);
-    protected:
-        float transPlayerX, transPlayerY, transPlayerZ;
+        void RenderSimpleMeshHUD(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
 
+    protected:
         vector<vector<int>> grid;
         set<pair<int, int>> playerValidPoz;
         int playerInitialX;
         int playerInitialZ;
         int playerSpeed;
-        int ramainingHealth;
+        float ramainingHealth;
 
 
         CameraT2 *camera;
         glm::mat4 projectionMatrix;
         bool thirdPersonCamera;
 
-        CameraT2* HUDCamera;
+        CameraT2* HUDcamera;
         glm::mat4 projectionMatrixHUD;
 
         int mazeBoundUpper;
@@ -89,25 +88,10 @@ namespace m1
         clock_t currentTime;
         clock_t initialTime;
 
-
         vector<Enemy*> enemies;
 
         bool canShoot;
         bullet currentBullet;
         float bulletDist, maxBulletDist;
-
-        /*vector<Bullet*> bullets;
-        bool spawnNewBullet;
-        clock_t currentTimeForBullets;
-        float fireRate;
-        float countForBullets;
-        float bulletMaxDistance;
-        clock_t currentTime;
-        clock_t lastTime;
-        clock_t lastBullet;
-        float timeCount;
-        */
-
-
     };
 }   // namespace m1

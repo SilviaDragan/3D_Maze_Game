@@ -35,7 +35,7 @@ void Tema2::Init()
     initialTime = clock();
     canShoot = true;
     bulletDist = 0;
-    maxBulletDist = 20;
+    maxBulletDist = 10;
     InitMaze();
     InitCamera();
     {
@@ -66,8 +66,8 @@ void Tema2::InitCamera() {
     camera->Set(glm::vec3(playerInitialX, 1.25f, playerInitialZ), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     projectionMatrix = glm::perspective(RADIANS(60), window->props.aspectRatio, 0.01f, 200.0f);
 
-    HUDCamera = new CameraT2();
-    HUDCamera->Set(glm::vec3(-5, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
+    HUDcamera = new CameraT2();
+    HUDcamera->Set(glm::vec3(-5, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     projectionMatrixHUD = glm::ortho(0.f, 5.f, 0.f, 5.f, .01f, 10.f);
 }
 
@@ -100,34 +100,8 @@ void Tema2::InitMaze() {
         newEnemy->currentPoz = glm::vec3(2 * enemy_it->first + 1, 1, 2 * enemy_it->second + 1);
         //cout << newEnemy->currentPoz.x << " " << newEnemy->currentPoz.y << " " << newEnemy->currentPoz.z << " " << endl;
         enemies.push_back(newEnemy);
-    }
-
-    
+    }    
 }
-//void Tema2::RenderMeshHUD(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color)
-//{
-//    if (!mesh || !shader || !shader->program)
-//        return;
-//
-//    glUseProgram(shader->program);
-//
-//    GLint locObject = glGetUniformLocation(shader->program, "object_color");
-//    glUniform3fv(locObject, 1, glm::value_ptr(color));
-//
-//    GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");
-//    glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-//
-//    glm::mat4 viewMatrix = hud->GetViewMatrix();
-//    int loc_view_matrix = glGetUniformLocation(shader->program, "View");
-//    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-//
-//    int loc_projection_matrix = glGetUniformLocation(shader->program, "Projection");
-//    glUniformMatrix4fv(loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrixHUD));
-//
-//    glBindVertexArray(mesh->GetBuffers()->m_VAO);
-//    glDrawElements(mesh->GetDrawMode(), static_cast<int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
-//}
-
 
 Mesh* Tema2::CreateMesh(const char* name, const std::vector<VertexFormat>& vertices, const std::vector<unsigned int>& indices)
 {
@@ -175,15 +149,15 @@ Mesh* Tema2::CreateMesh(const char* name, const std::vector<VertexFormat>& verti
     // Unbind the VAO
     glBindVertexArray(0);
 
-    // Check for OpenGL errors
-    CheckOpenGLError();
+// Check for OpenGL errors
+CheckOpenGLError();
 
-    // Mesh information is saved into a Mesh object
-    meshes[name] = new Mesh(name);
-    meshes[name]->InitFromBuffer(VAO, static_cast<unsigned int>(indices.size()));
-    meshes[name]->vertices = vertices;
-    meshes[name]->indices = indices;
-    return meshes[name];
+// Mesh information is saved into a Mesh object
+meshes[name] = new Mesh(name);
+meshes[name]->InitFromBuffer(VAO, static_cast<unsigned int>(indices.size()));
+meshes[name]->vertices = vertices;
+meshes[name]->indices = indices;
+return meshes[name];
 }
 
 void Tema2::FrameStart()
@@ -200,19 +174,19 @@ void Tema2::FrameStart()
 
 bool Tema2::solvedMaze() {
     if (camera->GetTargetPosition().x >= mazeBoundUpper || camera->GetTargetPosition().x <= mazeBoundLower ||
-            camera->GetTargetPosition().z >= mazeBoundUpper || camera->GetTargetPosition().z <= mazeBoundLower) {
+        camera->GetTargetPosition().z >= mazeBoundUpper || camera->GetTargetPosition().z <= mazeBoundLower) {
         return true;
     }
     return false;
 }
 
-bool Tema2::BulletEnemyCollision(bullet b, Enemy *e) {
-    return  ((e->currentPoz.x + 1.25f >= b.position.x && b.position.x + 0.25f >= e->currentPoz.x) 
-                && (e->currentPoz.y + 1.25f >= b.position.y && b.position.y + 0.25f >= e->currentPoz.y)
-                && (e->currentPoz.z + 1.25f >= b.position.z && b.position.z + 0.25f >= e->currentPoz.z));
+bool Tema2::BulletEnemyCollision(bullet b, Enemy* e) {
+    return  ((e->currentPoz.x + 1.25f >= b.position.x && b.position.x + 0.25f >= e->currentPoz.x)
+        && (e->currentPoz.y + 1.25f >= b.position.y && b.position.y + 0.25f >= e->currentPoz.y)
+        && (e->currentPoz.z + 1.25f >= b.position.z && b.position.z + 0.25f >= e->currentPoz.z));
 }
 
-bool Tema2::EnemyPlayerCollision(Enemy *e) {
+bool Tema2::EnemyPlayerCollision(Enemy* e) {
     glm::vec3 playerPoz = getPlayerLocation();
     bool collisionX = playerPoz.x + 0.5 >= e->currentPoz.x && e->currentPoz.x + 1.25f >= playerPoz.x;
     bool collisionZ = playerPoz.z + 0.5 >= e->currentPoz.z && e->currentPoz.z + 1.25f >= playerPoz.z;
@@ -239,15 +213,6 @@ void Tema2::Update(float deltaTimeSeconds)
         exit(0);
     }
 
-    // HUD TIMER
-    /*for (int i = 0; i < player->getPlayerTime(); ++i) {
-        glm::mat4 modelMatrix = glm::mat4(1);
-        glm::vec3 barSpawn = hud->position + glm::vec3(1, 4.8, 0.5f + ((float)i) / 60);
-        modelMatrix = glm::translate(modelMatrix, barSpawn);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.8, 0.2, 0.08));
-        RenderMeshHUD(meshes["timer"], shaders["LabShader"], modelMatrix, glm::vec3(0.85f, 0.85f, 0.85f));
-    }*/
-
     // HEALTH
     /*{
         for (int i = 0; i < player->getHealth() / 10; ++i) {
@@ -258,6 +223,24 @@ void Tema2::Update(float deltaTimeSeconds)
             RenderMeshHUD(meshes["healthbar"], shaders["LabShader"], modelMatrix, glm::vec3(1, 0, 0));
         }
     }*/
+
+    //// Healthbar render
+    
+    glm::mat4 modelMatrix = glm::mat4(1);
+    ////glm::vec3 barSpawn = HUDCamera->position + glm::vec3(1, 1, 0.6 + (-100 + playerHealth) / 100);
+    //modelMatrix = glm::translate(modelMatrix, HUDcamera->position + glm::vec3(1, 1, 0.6));
+    //modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 0.6));
+    //RenderSimpleMeshHUD(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.45f, 0.25f, 0.55f));
+    
+
+    // Timer
+    modelMatrix = glm::mat4(1);
+    modelMatrix = glm::translate(modelMatrix, HUDcamera->position + glm::vec3(1, 1.7, 0.6));
+    if ((5.5f - 0.1 * (currentTime - initialTime) / CLOCKS_PER_SEC) > 0) {
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 5.5f - 0.1 * ((currentTime - initialTime) / CLOCKS_PER_SEC)));
+        RenderSimpleMeshHUD(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.85f, 0.85f, 0.85f));
+    }
+       
 
     if (ramainingHealth <= 0) {
         cout << "GAME OVER, YOU DIED!" << endl;
@@ -304,9 +287,9 @@ void Tema2::Update(float deltaTimeSeconds)
     for (int i = 0; i < enemies.size(); i++) {
         Enemy* e = enemies[i];
         if (EnemyPlayerCollision(e)) {
-            ramainingHealth -= 1;
+            ramainingHealth -= 0.5f;
+            break;
         }
-
     }
     
 }
@@ -336,6 +319,8 @@ void Tema2::DrawMaze(vector<vector<int>> grid) {
 }
 
 void Tema2::DrawEnemy(glm::vec3 poz) {
+    // move enemies constantly
+
     glm::mat4 modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, poz);
     modelMatrix = glm::scale(modelMatrix, glm::vec3(1.25f, 1.25f, 1.25f));
@@ -428,18 +413,33 @@ void Tema2::RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelM
     glDrawElements(mesh->GetDrawMode(), static_cast<int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 }
 
-void Tema2::RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix)
+void Tema2::RenderSimpleMeshHUD(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color)
 {
     if (!mesh || !shader || !shader->program)
         return;
 
     // Render an object using the specified shader and the specified position
-    shader->Use();
-    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(HUDCamera->GetViewMatrix()));
-    glUniformMatrix4fv(shader->loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrixHUD));
-    glUniformMatrix4fv(shader->loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+    glUseProgram(shader->program);
 
-    mesh->Render();
+    GLint locObject = glGetUniformLocation(shader->program, "object_color");
+    glUniform3fv(locObject, 1, glm::value_ptr(color));
+
+    // Bind model matrix
+    GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");
+    glUniformMatrix4fv(loc_model_matrix, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+
+    // Bind view matrix
+    glm::mat4 viewMatrix = HUDcamera->GetViewMatrix();
+    int loc_view_matrix = glGetUniformLocation(shader->program, "View");
+    glUniformMatrix4fv(shader->loc_view_matrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+    // Bind projection matrix
+    int loc_projection_matrix = glGetUniformLocation(shader->program, "Projection");
+    glUniformMatrix4fv(loc_projection_matrix, 1, GL_FALSE, glm::value_ptr(projectionMatrixHUD));
+
+    // Draw the object
+    glBindVertexArray(mesh->GetBuffers()->m_VAO);
+    glDrawElements(mesh->GetDrawMode(), static_cast<int>(mesh->indices.size()), GL_UNSIGNED_INT, 0);
 }
 
 void Tema2::OnInputUpdate(float deltaTime, int mods)
@@ -576,9 +576,4 @@ bool CheckPlayerWallCollision(float playerX, float playerY, float playerZ, gridS
     bool collisionZ = playerZ >= s.z * 4 && s.z + s.length >= playerZ;
     return (collisionX && collisionZ);
 }
-
-
-}
-
-
 */

@@ -10,3 +10,73 @@ namespace enemy {
 			glm::vec3 currentPoz;
 	};
 }
+
+//// move an enemy in a cross form, based on its walking direction
+//enemy moveeEnemy(vector<enemy> enemies, int i, float deltaTimeSeconds) {
+//    float difference = deltaTimeSeconds;
+//    enemies[i].walkedDistance += difference;
+//    if (enemies[i].direction == 1) {
+//        enemies[i].x += difference;
+//    }
+//    if (enemies[i].direction == 2) {
+//        enemies[i].x -= difference;
+//    }
+//    if (enemies[i].direction == 3) {
+//        enemies[i].x += difference;
+//    }
+//    if (enemies[i].direction == 4) {
+//        enemies[i].z += difference;
+//    }
+//
+//    if (enemies[i].direction == 5) {
+//        enemies[i].z -= difference;
+//    }
+//
+//    if (enemies[i].direction == 6) {
+//        enemies[i].z += difference;
+//    }
+//
+//    if (enemies[i].direction == 1) {
+//        if (enemies[i].walkedDistance >= 1) {
+//            enemies[i].direction++;
+//            enemies[i].walkedDistance = 0;
+//        }
+//    }
+//
+//    if (enemies[i].direction == 2) {
+//        if (enemies[i].walkedDistance >= 2) {
+//            enemies[i].direction++;
+//            enemies[i].walkedDistance = 0;
+//        }
+//    }
+//
+//    if (enemies[i].direction == 3) {
+//        if (enemies[i].walkedDistance >= 1) {
+//            enemies[i].direction++;
+//            enemies[i].walkedDistance = 0;
+//        }
+//    }
+//
+//    if (enemies[i].direction == 4) {
+//        if (enemies[i].walkedDistance >= 1) {
+//            enemies[i].direction++;
+//            enemies[i].walkedDistance = 0;
+//        }
+//    }
+//
+//    if (enemies[i].direction == 5) {
+//        if (enemies[i].walkedDistance >= 2) {
+//            enemies[i].direction++;
+//            enemies[i].walkedDistance = 0;
+//
+//        }
+//    }
+//
+//    if (enemies[i].direction == 6) {
+//        if (enemies[i].walkedDistance >= 1) {
+//            enemies[i].direction = 1;
+//            enemies[i].walkedDistance = 0;
+//        }
+//    }
+//    return enemies[i];
+//}
