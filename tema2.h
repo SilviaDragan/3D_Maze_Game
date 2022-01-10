@@ -13,6 +13,7 @@
 #include "tema2-camera.h"
 #include "Maze.h"
 #include "Enemy.h"
+#include "Bullet.h"
 
 using namespace std;
 using namespace implemented;
@@ -20,7 +21,8 @@ using namespace enemy;
 
 
 #define ENEMIES_NO 5
-#define GAME_TIME 60
+#define GAME_TIME 600
+#define MAX_HEALTH 50
 #define Z_FAR		(200.f)
 #define Z_NEAR		(0.01f)
 
@@ -56,7 +58,10 @@ namespace m1
         void InitCamera();
         void InitMaze();
         bool solvedMaze();
+        bool BulletEnemyCollision(bullet b, Enemy *e);
+        bool EnemyPlayerCollision(Enemy* e);
         void DrawBullet();
+        glm::vec3 getPlayerLocation();
         void DrawMaze(vector<vector<int>> grid);
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
         void RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix);
@@ -68,6 +73,8 @@ namespace m1
         int playerInitialX;
         int playerInitialZ;
         int playerSpeed;
+        int ramainingHealth;
+
 
         CameraT2 *camera;
         glm::mat4 projectionMatrix;
@@ -82,11 +89,11 @@ namespace m1
         clock_t currentTime;
         clock_t initialTime;
 
-        int ramainingHealth;
 
         vector<Enemy*> enemies;
 
         bool canShoot;
+        bullet currentBullet;
         float bulletDist, maxBulletDist;
 
         /*vector<Bullet*> bullets;

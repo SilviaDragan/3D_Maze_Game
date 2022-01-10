@@ -8,6 +8,5 @@ namespace enemy {
 		
 			glm::vec3 initialPoz;
 			glm::vec3 currentPoz;
-			bool defeated;
 	};
 }
