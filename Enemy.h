@@ -6,6 +6,9 @@ namespace enemy {
 			Enemy();
 			~Enemy();
 		
+			// se misca in forma patrata in sensiul acelor de ceasornic
+			// pornind din coltul stg jos al celulei
+			int direction; // 1 = up, 2 = right, 3 = down, 4 = left
 			glm::vec3 initialPoz;
 			glm::vec3 currentPoz;
 	};

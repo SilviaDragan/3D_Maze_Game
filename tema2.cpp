@@ -96,9 +96,10 @@ void Tema2::InitMaze() {
         std::advance(enemy_it, rand() % playerValidPoz.size());
             
         Enemy *newEnemy = new Enemy();
-        newEnemy->initialPoz = glm::vec3(2 * enemy_it->first + 1, 1, 2 * enemy_it->second + 1);
-        newEnemy->currentPoz = glm::vec3(2 * enemy_it->first + 1, 1, 2 * enemy_it->second + 1);
-        //cout << newEnemy->currentPoz.x << " " << newEnemy->currentPoz.y << " " << newEnemy->currentPoz.z << " " << endl;
+        // initial poz = marginea celulei (stg jos)
+        newEnemy->initialPoz = glm::vec3(2 * enemy_it->first, 1, 2 * enemy_it->second);
+        newEnemy->currentPoz = glm::vec3(2 * enemy_it->first + 0.5f, 1, 2 * enemy_it->second + 0.5f);
+        newEnemy->direction = 1;
         enemies.push_back(newEnemy);
     }    
 }
@@ -205,7 +206,7 @@ glm::vec3 Tema2::getPlayerLocation() {
 
 void Tema2::Update(float deltaTimeSeconds)
 {
-    DrawMaze(grid);
+    DrawMaze(grid, deltaTimeSeconds);
 
     currentTime = clock();
     if (currentTime - initialTime >= GAME_TIME * CLOCKS_PER_SEC) {
@@ -213,21 +214,8 @@ void Tema2::Update(float deltaTimeSeconds)
         exit(0);
     }
 
-    // HEALTH
-    /*{
-        for (int i = 0; i < player->getHealth() / 10; ++i) {
-            glm::mat4 modelMatrix = glm::mat4(1);
-            glm::vec3 barSpawn = hud->position + glm::vec3(1, 4.8, 4 + ((float)i) / 10);
-            modelMatrix = glm::translate(modelMatrix, barSpawn);
-            modelMatrix = glm::scale(modelMatrix, glm::vec3(0.8, 0.2, 0.08));
-            RenderMeshHUD(meshes["healthbar"], shaders["LabShader"], modelMatrix, glm::vec3(1, 0, 0));
-        }
-    }*/
-
-    //// Healthbar render
-    
+    // Healthbar
     glm::mat4 modelMatrix = glm::mat4(1);
-    //glm::vec3 barSpawn = HUDCamera->position + glm::vec3(1, 1, 0.6 + (-100 + playerHealth) / 100);
     modelMatrix = glm::translate(modelMatrix, HUDcamera->position + glm::vec3(1, 1, 0.6));
     modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f, 0.5f, 1.5f + (ramainingHealth-70)/50));
     RenderSimpleMeshHUD(meshes["box"], shaders["BodyShader"], modelMatrix, glm::vec3(0.45f, 0.25f, 0.55f));
@@ -247,10 +235,10 @@ void Tema2::Update(float deltaTimeSeconds)
         exit(0);
     }
 
-    if (solvedMaze()) {
+    /*if (solvedMaze()) {
         cout << "CONGRATULATIONS! YOU WIN!" << endl;
         exit(0);
-    }
+    }*/
 
     if (thirdPersonCamera) {
         DrawPlayer(deltaTimeSeconds);
@@ -294,9 +282,9 @@ void Tema2::Update(float deltaTimeSeconds)
     
 }
 
-void Tema2::DrawMaze(vector<vector<int>> grid) {
+void Tema2::DrawMaze(vector<vector<int>> grid, float deltaTimeSeconds) {
     glm::mat4 floorMatrix = glm::mat4(1);
-    floorMatrix = glm::translate(floorMatrix, glm::vec3(GRID_SIZE, -0.25 , GRID_SIZE));
+    floorMatrix = glm::translate(floorMatrix, glm::vec3(GRID_SIZE, -0.25f, GRID_SIZE));
     floorMatrix = glm::scale(floorMatrix, glm::vec3(2*GRID_SIZE, 0.25f, 2*GRID_SIZE));
     RenderSimpleMesh(meshes["box"], shaders["BodyShader"], floorMatrix, glm::vec3(0, 0, 0.2f));
 
@@ -313,17 +301,67 @@ void Tema2::DrawMaze(vector<vector<int>> grid) {
 
     for (int i = 0; i < enemies.size(); i++) {
         Enemy* e = enemies[i];
+        MoveEnemy(e, deltaTimeSeconds);
         DrawEnemy(e->currentPoz);
         
     }
 }
 
-void Tema2::DrawEnemy(glm::vec3 poz) {
-    // move enemies constantly
+void Tema2::MoveEnemy(Enemy *e, float deltaTimeSeconds) {
+    glm::vec3 current = e->currentPoz;
+    int dir = e->direction;
+    // up
+    if (dir == 1) {
+        if (current.z + deltaTimeSeconds > e->initialPoz.z + 2) {
+            e->direction = 2;
+            //cout << "schimb directia in " << e->direction ;
+            return;
+        }
+        else {
+            current.z += deltaTimeSeconds;
+            e->currentPoz = current;
+        }
+    }
+    // right
+    if (dir == 2) {
+        if (current.x - deltaTimeSeconds < e->initialPoz.x - 1.5f) {
+            e->direction = 3;
+            return;
+        }
+        else {
+            //cout << "ma plimmb in plm";
+            current.x -= deltaTimeSeconds;
+            e->currentPoz = current;
+        }
+    }
+    // down
+    if (dir == 3) {
+        if (current.z - deltaTimeSeconds < e->initialPoz.z -1.5f) {
+            e->direction = 4;
+            return;
+        }
+        else {
+            current.z -= deltaTimeSeconds;
+            e->currentPoz = current;
+        }
+    }
+    // left
+    if (dir == 4) {
+        if (current.x + deltaTimeSeconds > e->initialPoz.z) {
+            e->direction = 1;
+            return;
+        }
+        else {
+            current.x += deltaTimeSeconds;
+            e->currentPoz = current;
+        }
+    }
+}
 
+void Tema2::DrawEnemy(glm::vec3 poz) {
     glm::mat4 modelMatrix = glm::mat4(1);
     modelMatrix = glm::translate(modelMatrix, poz);
-    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.25f, 1.25f, 1.25f));
+    modelMatrix = glm::scale(modelMatrix, glm::vec3(1, 1, 1));
     RenderSimpleMesh(meshes["sphere"], shaders["BodyShader"], modelMatrix, glm::vec3(0.2f, 0, 0.2f));
 }
 

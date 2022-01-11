@@ -53,8 +53,10 @@ namespace m1
         void OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods) override;
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
+        void DrawMaze(vector<vector<int>> grid, float deltaTimeSeconds);
         void DrawPlayer(float deltaTimeSeconds);
         void DrawEnemy(glm::vec3 poz);
+        void MoveEnemy(Enemy* e, float deltaTimeSeconds);
         void InitCamera();
         void InitMaze();
         bool solvedMaze();
@@ -62,7 +64,6 @@ namespace m1
         bool EnemyPlayerCollision(Enemy* e);
         void DrawBullet();
         glm::vec3 getPlayerLocation();
-        void DrawMaze(vector<vector<int>> grid);
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
         void RenderSimpleMeshHUD(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);
 

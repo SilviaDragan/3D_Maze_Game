@@ -45,7 +45,7 @@ bool isBorder(pair<int, int> poz) {
 
 // 1 e zid
 // 0 e cale libera
-// 2 o sa fie inamic
+// 2 inamic
 pair<vector<vector<int>>, set<pair<int, int>>> GenerateMaze() {
     srand(time(0));
     cout << "generate maze" << endl;
