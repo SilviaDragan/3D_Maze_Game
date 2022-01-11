@@ -97,9 +97,12 @@ void Tema2::InitMaze() {
             
         Enemy *newEnemy = new Enemy();
         // initial poz = marginea celulei (stg jos)
-        newEnemy->initialPoz = glm::vec3(2 * enemy_it->first, 1, 2 * enemy_it->second);
-        newEnemy->currentPoz = glm::vec3(2 * enemy_it->first + 0.5f, 1, 2 * enemy_it->second + 0.5f);
+        newEnemy->initialPoz = glm::vec3(2 * enemy_it->first + 0.5, 1, 2 * enemy_it->second + 0.5);
+        newEnemy->currentPoz = glm::vec3(2 * enemy_it->first + 0.5, 1, 2 * enemy_it->second + 0.5);
         newEnemy->direction = 1;
+        cout << enemy_it->first << " " << enemy_it->second << endl;
+        cout << newEnemy->initialPoz.x << " " << newEnemy->initialPoz.z << endl;
+        cout << endl;
         enemies.push_back(newEnemy);
     }    
 }
@@ -189,10 +192,18 @@ bool Tema2::BulletEnemyCollision(bullet b, Enemy* e) {
 
 bool Tema2::EnemyPlayerCollision(Enemy* e) {
     glm::vec3 playerPoz = getPlayerLocation();
-    bool collisionX = playerPoz.x + 0.5 >= e->currentPoz.x && e->currentPoz.x + 1.25f >= playerPoz.x;
-    bool collisionZ = playerPoz.z + 0.5 >= e->currentPoz.z && e->currentPoz.z + 1.25f >= playerPoz.z;
-    return (collisionX && collisionZ);
+    return (playerPoz.x + 0.5 >= e->currentPoz.x && e->currentPoz.x + 1.25f >= playerPoz.x) 
+            && (playerPoz.z + 0.5 >= e->currentPoz.z && e->currentPoz.z + 1.25f >= playerPoz.z);
+}
 
+bool Tema2::PlayerWallCollision(int wallX, int wallZ) {
+    /*
+bool CheckPlayerWallCollision(float playerX, float playerY, float playerZ, gridSquare s) {
+    bool collisionX = playerX >= s.x * 4 && s.x + s.length >= playerX;
+    bool collisionZ = playerZ >= s.z * 4 && s.z + s.length >= playerZ;
+    return (collisionX && collisionZ);
+}
+*/
 }
 
 glm::vec3 Tema2::getPlayerLocation() {
@@ -312,9 +323,8 @@ void Tema2::MoveEnemy(Enemy *e, float deltaTimeSeconds) {
     int dir = e->direction;
     // up
     if (dir == 1) {
-        if (current.z + deltaTimeSeconds > e->initialPoz.z + 2) {
+        if (current.z + deltaTimeSeconds > e->initialPoz.z + 1) {
             e->direction = 2;
-            //cout << "schimb directia in " << e->direction ;
             return;
         }
         else {
@@ -322,21 +332,20 @@ void Tema2::MoveEnemy(Enemy *e, float deltaTimeSeconds) {
             e->currentPoz = current;
         }
     }
-    // right
-    if (dir == 2) {
-        if (current.x - deltaTimeSeconds < e->initialPoz.x - 1.5f) {
-            e->direction = 3;
-            return;
-        }
-        else {
-            //cout << "ma plimmb in plm";
-            current.x -= deltaTimeSeconds;
-            e->currentPoz = current;
-        }
-    }
+    //// left
+   if (dir == 2) {
+       if (current.x + deltaTimeSeconds > e->initialPoz.x + 1) {
+           e->direction = 3;
+           return;
+       }
+       else {
+           current.x += deltaTimeSeconds;
+           e->currentPoz = current;
+       }
+   }
     // down
     if (dir == 3) {
-        if (current.z - deltaTimeSeconds < e->initialPoz.z -1.5f) {
+        if (current.z - deltaTimeSeconds < e->initialPoz.z) {
             e->direction = 4;
             return;
         }
@@ -345,14 +354,15 @@ void Tema2::MoveEnemy(Enemy *e, float deltaTimeSeconds) {
             e->currentPoz = current;
         }
     }
-    // left
+   
+    //// right
     if (dir == 4) {
-        if (current.x + deltaTimeSeconds > e->initialPoz.z) {
+        if (current.x - deltaTimeSeconds < e->initialPoz.x) {
             e->direction = 1;
             return;
         }
         else {
-            current.x += deltaTimeSeconds;
+            current.x -= deltaTimeSeconds;
             e->currentPoz = current;
         }
     }
@@ -483,7 +493,6 @@ void Tema2::RenderSimpleMeshHUD(Mesh* mesh, Shader* shader, const glm::mat4& mod
 void Tema2::OnInputUpdate(float deltaTime, int mods)
 {
     // Add key press event
-   
     if (window->KeyHold(GLFW_KEY_RIGHT)) {
         camera->TranslateRight(playerSpeed * deltaTime);
     }
@@ -505,33 +514,6 @@ void Tema2::OnInputUpdate(float deltaTime, int mods)
     if (window->KeyHold(GLFW_KEY_E)) {
         camera->TranslateUpward(1 * deltaTime * playerSpeed);
     }
-
-  /*  if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
-    {
-        if (window->KeyHold(GLFW_KEY_W)) {
-            camera->MoveForward(1 * deltaTime * playerSpeed);
-        }
-
-        if (window->KeyHold(GLFW_KEY_A)) {
-            camera->TranslateRight(-1 * deltaTime * playerSpeed);
-        }
-
-        if (window->KeyHold(GLFW_KEY_S)) {
-            camera->MoveForward(-1 * deltaTime * playerSpeed);
-        }
-
-        if (window->KeyHold(GLFW_KEY_D)) {
-            camera->TranslateRight(1 * deltaTime * playerSpeed);
-        }
-
-        if (window->KeyHold(GLFW_KEY_Q)) {
-            camera->TranslateUpward(-1 * deltaTime * playerSpeed);
-        }
-
-        if (window->KeyHold(GLFW_KEY_E)) {
-            camera->TranslateUpward(1 * deltaTime * playerSpeed);
-        }
-    }*/
 }
 
 
@@ -570,17 +552,13 @@ void Tema2::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
     // Add mouse move event
     if (window->MouseHold(GLFW_MOUSE_BUTTON_RIGHT))
     {
-        float sensivityOX = 0.0016f;
-        float sensivityOY = 0.0016f;
-
         if (!thirdPersonCamera) {
-            camera->RotateFirstPerson_OX(-sensivityOX * deltaY);
-            camera->RotateFirstPerson_OY(-sensivityOY * deltaX);
+            camera->RotateFirstPerson_OX(-0.0015f * deltaY);
+            camera->RotateFirstPerson_OY(-0.0015f * deltaX);
         }
-
         else {
-            camera->RotateThirdPerson_OX(-sensivityOX * deltaY);
-            camera->RotateThirdPerson_OY(-sensivityOY * deltaX);
+            camera->RotateThirdPerson_OX(-0.0015f * deltaY);
+            camera->RotateThirdPerson_OY(-0.0015f * deltaX);
 
         }
     }
@@ -608,10 +586,3 @@ void Tema2::OnWindowResize(int width, int height)
 {
 }
 
-/*
-bool CheckPlayerWallCollision(float playerX, float playerY, float playerZ, gridSquare s) {
-    bool collisionX = playerX >= s.x * 4 && s.x + s.length >= playerX;
-    bool collisionZ = playerZ >= s.z * 4 && s.z + s.length >= playerZ;
-    return (collisionX && collisionZ);
-}
-*/
