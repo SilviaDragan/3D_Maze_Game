@@ -62,6 +62,7 @@ namespace m1
         bool solvedMaze();
         bool BulletEnemyCollision(bullet b, Enemy *e);
         bool EnemyPlayerCollision(Enemy* e);
+        bool PlayerWallCollision(int wallX, int wallZ);
         void DrawBullet();
         glm::vec3 getPlayerLocation();
         void RenderSimpleMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix, const glm::vec3& color);

@@ -197,6 +197,10 @@ bool Tema2::EnemyPlayerCollision(Enemy* e) {
 }
 
 bool Tema2::PlayerWallCollision(int wallX, int wallZ) {
+    glm::vec3 playerPoz = getPlayerLocation();
+    bool collisionX = playerPoz.x >= wallX && wallX + 2 >= playerPoz.x;
+    bool collisionZ = playerPoz.z >= wallZ && wallZ + 2 >= playerPoz.z;
+    return (collisionX && collisionZ);
     /*
 bool CheckPlayerWallCollision(float playerX, float playerY, float playerZ, gridSquare s) {
     bool collisionX = playerX >= s.x * 4 && s.x + s.length >= playerX;
@@ -254,6 +258,8 @@ void Tema2::Update(float deltaTimeSeconds)
     if (thirdPersonCamera) {
         DrawPlayer(deltaTimeSeconds);
 
+        
+
     }
 
     if (!thirdPersonCamera) {
@@ -290,6 +296,8 @@ void Tema2::Update(float deltaTimeSeconds)
             break;
         }
     }
+
+    
     
 }
 
@@ -314,7 +322,6 @@ void Tema2::DrawMaze(vector<vector<int>> grid, float deltaTimeSeconds) {
         Enemy* e = enemies[i];
         MoveEnemy(e, deltaTimeSeconds);
         DrawEnemy(e->currentPoz);
-        
     }
 }
 
@@ -492,6 +499,7 @@ void Tema2::RenderSimpleMeshHUD(Mesh* mesh, Shader* shader, const glm::mat4& mod
 
 void Tema2::OnInputUpdate(float deltaTime, int mods)
 {
+    glm::vec3 remember = camera->position;
     // Add key press event
     if (window->KeyHold(GLFW_KEY_RIGHT)) {
         camera->TranslateRight(playerSpeed * deltaTime);
@@ -507,12 +515,22 @@ void Tema2::OnInputUpdate(float deltaTime, int mods)
     if (window->KeyHold(GLFW_KEY_DOWN)) {
         camera->MoveForward(-playerSpeed * deltaTime);
     }
-    if (window->KeyHold(GLFW_KEY_Q)) {
+   /* if (window->KeyHold(GLFW_KEY_Q)) {
         camera->TranslateUpward(-1 * deltaTime * playerSpeed);
     }
 
     if (window->KeyHold(GLFW_KEY_E)) {
         camera->TranslateUpward(1 * deltaTime * playerSpeed);
+    }*/
+
+    for (int i = 0; i < GRID_SIZE; i++) {
+        for (int j = 0; j < GRID_SIZE; j++) {
+            if (grid[i][j] == 1) {
+                if (PlayerWallCollision(2 * i, 2 * j)) {
+                    camera->position = remember;
+                }
+            }
+        }
     }
 }
 
